@@ -1,0 +1,10 @@
+requires 'Data::Printer';
+requires 'Data::UUID';
+requires 'HTTP::Tiny';
+requires 'JSON';
+requires 'Role::Tiny';
+requires 'Hash::Merge';
+requires 'Tie::File';
+requires 'File::Which';
+requires 'Parse::DMIDecode';
+requires 'Linux::Cpuinfo';

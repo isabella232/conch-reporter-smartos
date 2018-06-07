@@ -1,0 +1,35 @@
+# Temporary, backup, dependency, and object files
+*.o
+*.bs
+/_eumm/
+*.swp
+*.tmp
+*.bak
+tags
+.lvimrc
+.agignore
+.DS_Store
+node_modules
+Conch/ui/dist
+
+CHANGELOG.md
+
+# Conch
+Conch/conch.conf
+Conch/report
+Conch/public/doc
+Conch/docs/conch-api/index.html
+Conch/log
+Conch/bin/hypnotoad.pid
+Conch/nytprof
+Conch/nytprof.log
+
+# Carton-installed dependency folder
+local/
+
+
+# deploy files
+deploy/site.retry
+deploy/staging
+deploy/production
+deploy/.vault_pass
