@@ -10,10 +10,10 @@ use JSON;
 use Data::Printer;
 
 use Conch::Reporter::Collect;
-use Conch::Reporter::Collect::Network::Interfaces;
+use Conch::Reporter::Collect::Network;
 
 my $device = {};
 
-$device = Conch::Reporter::Collect::Network::Interfaces::collect;
+$device = Conch::Reporter::Collect::Network::collect($device);
 
 p $device;
