@@ -1,5 +1,0 @@
-#!/bin/sh
-
-BASEDIR=$(cd `dirname $0` && pwd)
-
-carton exec perl $BASEDIR/send_report.pl
