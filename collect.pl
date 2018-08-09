@@ -12,5 +12,8 @@ use Data::Printer;
 use Conch::Reporter::Collect;
 use Conch::Reporter::Collect::Network::Interfaces;
 
-my $j = encode_json({ one => 1 });
-p $j;
+my $device = {};
+
+$device = Conch::Reporter::Collect::Network::Interfaces::collect;
+
+p $device;

@@ -3,32 +3,83 @@ package Conch::Reporter::Collect::Network::Interfaces;
 use strict;
 use warnings;
 
-sub interfaces {
+sub collect {
 	my ( $device) = @_;
 
-# [root@headnode (us-east-1) /var/tmp/dc-standup]# dladm show-phys -m
-# LINK         SLOT     ADDRESS            INUSE CLIENT
-# igb0         primary  24:6e:96:24:2f:5c  yes  igb0
-# igb1         primary  24:6e:96:24:2f:5d  yes  igb1
-# ixgbe0       primary  a0:36:9f:c0:fb:b8  yes  ixgbe0
-# ixgbe2       primary  24:6e:96:24:2f:58  yes  ixgbe2
-# ixgbe1       primary  a0:36:9f:c0:fb:ba  yes  ixgbe1
-# ixgbe3       primary  24:6e:96:24:2f:5a  yes  ixgbe3
+	$device = _macs($device);
+	$device = _ip($device);
+	$device = _links($device);
+	$device = _mtu($device);
 
-# [root@headnode (us-east-1) /var/tmp/dc-standup]# dladm show-phys 
-# LINK         MEDIA                STATE      SPEED  DUPLEX    DEVICE
-# igb0         Ethernet             down       0      half      igb0
-# igb1         Ethernet             down       0      half      igb1
-# ixgbe0       Ethernet             up         10000  full      ixgbe0
-# ixgbe2       Ethernet             up         10000  full      ixgbe2
-# ixgbe1       Ethernet             up         10000  full      ixgbe1
-# ixgbe3       Ethernet             up         10000  full      ixgbe3
+	return $device;
+}
 
-$device->{interfaces}{$iface}{ipaddr} = $ipaddr;
-$device->{interfaces}{$iface}{mac}    = $mac;
-$device->{interfaces}{$iface}{state}  = $state;
-$device->{interfaces}{$iface}{mtu}    = $mtu;
+sub _ip {
+	my ( $device ) = @_;
+	my $cmd = `ipadm show-addr -p -o addrobj,addr`;
+	# lo0/v4:127.0.0.1/8
+	# ixgbe3/_a:10.65.245.20/24
+	# external0/_a:10.65.246.20/24
+	# lo0/v6:\:\:1/128
 
+	foreach my $line (split/\n/, $cmd) {
+		chomp $line;
+		my ($iface,$ipaddr) = split/:/, $line;
+		next if $iface =~ /lo0/;
+		$iface =~ s/\/.*$//g;
+
+		$device->{interfaces}{$iface}{ipaddr} = $ipaddr;
+	}
+	return $device;
+}
+
+sub _macs {
+	my ( $device ) = @_;
+
+	my $cmd = `dladm show-phys -m -p -o link,address`;
+	# igb0:24\:6e\:96\:24\:2f\:5c
+	# ixgbe3:24\:6e\:96\:24\:2f\:5a
+
+	foreach my $line (split/\n/, $cmd) {
+		chomp $line;
+
+		# bdha is bad at regexp.
+		$line =~ s/\\:/-/g;
+		my ($iface, $mac) = split/:/, $line;
+		$mac =~ s/-/:/g;
+
+		$device->{interfaces}{$iface}{mac} = $mac;
+	}
+
+	return $device;
+}
+
+sub _links {
+	my ( $device ) = @_;
+
+	my $cmd = `dladm show-phys -p -o link,state,speed,duplex`;
+	# igb0:down:0:half
+	# igb1:down:0:half
+	# ixgbe0:up:10000:full
+	# ixgbe2:up:10000:full
+	# ixgbe1:up:10000:full
+	# ixgbe3:up:10000:full
+
+	# $device->{interfaces}{$iface}{state}  = $state;
+
+	return $device;
+}
+
+sub _mtu {
+	my ( $device ) = @_;
+	# dladm show-link -p -o link,class,mtu,state | grep phys
+	# igb0:phys:1500:down
+	# igb1:phys:1500:down
+	# ixgbe0:phys:1500:up
+	# ixgbe2:phys:1500:up
+	# ixgbe1:phys:1500:up # ixgbe3:phys:1500:up
+
+#	$device->{interfaces}{$iface}{mtu}    = $mtu;
 }
 
 1;
