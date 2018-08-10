@@ -3,6 +3,7 @@ package Conch::Reporter::Collect::hwgrok;
 use strict;
 use warnings;
 
+use Carp;
 use Path::Tiny;
 use IPC::Run3;
 use JSON;
@@ -48,6 +49,7 @@ sub _load_hwgrok_cache {
 		my $stderr;
 		my $json;
 		run3 $cmd, \undef, \$json, \$stderr;
+	
 		$fp->spew_utf8($json);
 		$hwgrok = decode_json $json;
 		my $elapsed = tv_interval ($t0);
