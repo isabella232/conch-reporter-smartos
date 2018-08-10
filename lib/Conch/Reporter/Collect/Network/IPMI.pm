@@ -24,18 +24,18 @@ sub _ipmi_lan {
 		$v =~ s/^\s+|\s+$//g;
 
 		if ( $k eq "IP Address" ) {
-			$device->{interfaces}{ipmi1}{ipaddr} = $v;
+			$device->{conch}{interfaces}{ipmi1}{ipaddr} = $v;
 		}
 
 		if ( $k eq "MAC Address" ) {
-			$device->{interfaces}{ipmi1}{mac}    = $v;
+			$device->{conch}{interfaces}{ipmi1}{mac}    = $v;
 		}
 
 		# XXX Could make this smarter by detecting Dell vs SMCI. Or not.¬
 		# racadm getniccfg can tell you if the DRAC link is up, for instance.¬
-		$device->{interfaces}{ipmi1}{product} = "OOB";
-		$device->{interfaces}{ipmi1}{vendor}  = "Intel";
-		$device->{interfaces}{ipmi1}{class}   = "phys";
+		$device->{conch}{interfaces}{ipmi1}{product} = "OOB";
+		$device->{conch}{interfaces}{ipmi1}{vendor}  = "Intel";
+		$device->{conch}{interfaces}{ipmi1}{class}   = "phys";
 	}
 
 	return $device;

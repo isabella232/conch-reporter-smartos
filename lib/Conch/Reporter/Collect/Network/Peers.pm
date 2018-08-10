@@ -3,6 +3,9 @@ package Conch::Reporter::Collect::Network::Peers;
 use strict;
 use warnings;
 
+use Time::HiRes qw(usleep ualarm gettimeofday tv_interval);
+use IPC::Run3;
+
 use Conch::Reporter::Collect::OUI;
 
 sub collect {
@@ -16,6 +19,8 @@ sub collect {
 sub _snoop_lldp {
 	my ($iface) = @_;
 
+	print "=> Snooping LLDP on $iface: ";
+
 	# device-id: f4:8e:38:46:23:22
 	# platform: 
 	# capabilities: 
@@ -26,9 +31,17 @@ sub _snoop_lldp {
 
 	my $lldp = {};
 
-	my $cmd = `./getldp.pl -x -s -i $iface -l -t 60 2>> /tmp/getldp.out`;
+	my $stdin;
+	my $stdout;
+	my $stderr;
+	my $cmd = "./bin/getldp.pl -x -s -i $iface -l -t 60";
 
-	foreach my $line (split/\n/, $cmd) {
+	my $t0 = [gettimeofday];
+	run3 $cmd, \undef, \$stdout, \$stderr;
+	my $elapsed = tv_interval ($t0);
+	print $elapsed . "s\n";
+
+	foreach my $line (split/\n/, $stdout) {
 		my ($k, $v) = split(/:/, $line, 2);
 		$k =~ s/^\s+|\s+$//g;
 		$v =~ s/^\s+|\s+$//g if $v;
@@ -52,27 +65,27 @@ sub _peers {
 		'capabilities' => 'peer_capabilities',
 	);
 
-	foreach my $iface (keys %{$device->{interfaces}}) {
-		next unless $device->{interfaces}{$iface}{state};
-		next unless $device->{interfaces}{$iface}{class};
-		next unless $device->{interfaces}{$iface}{state} eq "up";
-		next unless $device->{interfaces}{$iface}{class} eq "phys";
+	foreach my $iface (keys %{$device->{conch}{interfaces}}) {
+		next unless $device->{conch}{interfaces}{$iface}{state};
+		next unless $device->{conch}{interfaces}{$iface}{class};
+		next unless $device->{conch}{interfaces}{$iface}{state} eq "up";
+		next unless $device->{conch}{interfaces}{$iface}{class} eq "phys";
 
 		my $lldp = _snoop_lldp($iface);
 		foreach my $k (keys %{$lldp}) {
 			if ($field_map{$k}) {
 				my $remap = $field_map{$k};
-				$device->{interfaces}{$iface}{$remap} = $lldp->{$k};
+				$device->{conch}{interfaces}{$iface}{$remap} = $lldp->{$k};
 			} else {
-				$device->{interfaces}{$iface}{$k} = $lldp->{$k};
+				$device->{conch}{interfaces}{$iface}{$k} = $lldp->{$k};
 			}
 		}
 
-		if ($device->{interfaces}{$iface}{peer_mac}) {
-			my $peer_mac = $device->{interfaces}{$iface}{peer_mac};
+		if ($device->{conch}{interfaces}{$iface}{peer_mac}) {
+			my $peer_mac = $device->{conch}{interfaces}{$iface}{peer_mac};
 			my $lookup = Conch::Reporter::Collect::OUI::lookup($peer_mac);
 			my $vendor = $lookup->[0] || undef;
-			$device->{interfaces}{$iface}{peer_vendor} = $vendor;
+			$device->{conch}{interfaces}{$iface}{peer_vendor} = $vendor;
 		}
 	}
 

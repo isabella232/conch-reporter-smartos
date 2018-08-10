@@ -30,7 +30,7 @@ sub _ip {
 		next if $iface =~ /lo0/;
 		$iface =~ s/\/.*$//g;
 
-		$device->{interfaces}{$iface}{ipaddr} = $ipaddr;
+		$device->{conch}{interfaces}{$iface}{ipaddr} = $ipaddr;
 	}
 	return $device;
 }
@@ -52,7 +52,7 @@ sub _macs {
 
 		my $lookup = Conch::Reporter::Collect::OUI::lookup($mac);
 		my $vendor = $lookup->[0] || undef;
-		$device->{interfaces}{$iface}{vendor} = $vendor;
+		$device->{conch}{interfaces}{$iface}{vendor} = $vendor;
 	}
 
 	return $device;
@@ -69,9 +69,9 @@ sub _links {
 
 		my ($iface,$state,$speed,$duplex) = split/:/, $line;
 
-		$device->{interfaces}{$iface}{state}  = $state;
-		$device->{interfaces}{$iface}{duplex} = $duplex;
-		$device->{interfaces}{$iface}{speed}  = $speed;
+		$device->{conch}{interfaces}{$iface}{state}  = $state;
+		$device->{conch}{interfaces}{$iface}{duplex} = $duplex;
+		$device->{conch}{interfaces}{$iface}{speed}  = $speed;
 	}
 
 	return $device;
@@ -92,9 +92,9 @@ sub _mtu {
 
 		my ($iface,$class,$mtu,$state) = split/:/, $line;
 
-		$device->{interfaces}{$iface}{mtu}    = $mtu;
-		$device->{interfaces}{$iface}{class}  = $class;
-		$device->{interfaces}{$iface}{state}  = $state;
+		$device->{conch}{interfaces}{$iface}{mtu}    = $mtu;
+		$device->{conch}{interfaces}{$iface}{class}  = $class;
+		$device->{conch}{interfaces}{$iface}{state}  = $state;
 	}
 
 	return $device;
