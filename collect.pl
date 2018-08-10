@@ -15,6 +15,7 @@ use Data::Printer;
 use Conch::Reporter::Collect;
 use Conch::Reporter::Collect::hwgrok;
 use Conch::Reporter::Collect::Network;
+use Conch::Reporter::Collect::Memory;
 
 my $device = {};
 
@@ -25,8 +26,11 @@ my $t0 = [gettimeofday];
 print "Collector: hwgrok\n";
 $device = Conch::Reporter::Collect::hwgrok::collect($device);
 
-print "Collector: network\n";
-$device = Conch::Reporter::Collect::Network::collect($device);
+#print "Collector: network\n";
+#$device = Conch::Reporter::Collect::Network::collect($device);
+
+print "Collector: memory\n";
+$device = Conch::Reporter::Collect::Memory::collect($device);
 
 my $json = encode_json $device;
 my $file = "/tmp/conch-report.json";
