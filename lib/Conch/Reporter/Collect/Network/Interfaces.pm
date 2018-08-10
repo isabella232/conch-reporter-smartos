@@ -3,6 +3,8 @@ package Conch::Reporter::Collect::Network::Interfaces;
 use strict;
 use warnings;
 
+use Conch::Reporter::Collect::OUI;
+
 sub collect {
 	my ( $device) = @_;
 
@@ -43,13 +45,14 @@ sub _macs {
 	foreach my $line (split/\n/, $cmd) {
 		chomp $line;
 
-		# bdha is bad at regexp.
-		# XXX Fix this to use split(,,2) and then sed the \ out of $mac
-		$line =~ s/\\:/-/g;
-		my ($iface, $mac) = split/:/, $line;
-		$mac =~ s/-/:/g;
+		my ($iface, $mac) = split(/:/, $line,2);
+		$mac =~ s/\\//g;
 
 		$device->{interfaces}{$iface}{mac} = $mac;
+
+		my $lookup = Conch::Reporter::Collect::OUI::lookup($mac);
+		my $vendor = $lookup->[0] || undef;
+		$device->{interfaces}{$iface}{vendor} = $vendor;
 	}
 
 	return $device;

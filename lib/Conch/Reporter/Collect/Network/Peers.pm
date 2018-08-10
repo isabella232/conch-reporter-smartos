@@ -3,9 +3,7 @@ package Conch::Reporter::Collect::Network::Peers;
 use strict;
 use warnings;
 
-use Net::MAC::Vendor;
-
-use Data::Printer;
+use Conch::Reporter::Collect::OUI;
 
 sub collect {
 	my ($device) = @_;
@@ -54,16 +52,6 @@ sub _peers {
 		'capabilities' => 'peer_capabilities',
 	);
 
-	if (-f "./oui.cache") {
-		print "Using OUI cache\n";
-		my $cache_load =
-			Net::MAC::Vendor::load_cache("./oui.cache", "/var/tmp/oui.out");
-	} else {
-		print "OUI cache not found, fetching from IEEE\n";
-		my $cache_load =
-			Net::MAC::Vendor::load_cache(undef, "/var/tmp/oui.out");
-	}
-
 	foreach my $iface (keys %{$device->{interfaces}}) {
 		next unless $device->{interfaces}{$iface}{state};
 		next unless $device->{interfaces}{$iface}{class};
@@ -82,7 +70,7 @@ sub _peers {
 
 		if ($device->{interfaces}{$iface}{peer_mac}) {
 			my $peer_mac = $device->{interfaces}{$iface}{peer_mac};
-			my $lookup = Net::MAC::Vendor::fetch_oui_from_cache($peer_mac);
+			my $lookup = Conch::Reporter::Collect::OUI::lookup($peer_mac);
 			my $vendor = $lookup->[0] || undef;
 			$device->{interfaces}{$iface}{peer_vendor} = $vendor;
 		}
