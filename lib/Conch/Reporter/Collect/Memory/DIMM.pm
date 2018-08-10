@@ -18,13 +18,14 @@ sub collect {
 
 	my %vendors = (
 		'00CE00B300CE' => 'Samsung',
+		'00CE063200CE' => 'Samsung',
 	);
 
 	my %field_map = (
 		label => 'memory-locator',
 		dimm => {
 			manufacturer    => 'memory-manufacturer',
-			'part-number'   => 'memory-manufacturer',
+			'part-number'   => 'memory-part-number',
 			'serial-number' => 'memory-serial-number',
 			'type'          => 'memory-type',
 			'size-in-bytes' => 'memory-size',
@@ -37,19 +38,24 @@ sub collect {
 		my $conch_dimm = {};
 		$conch_dimm->{'memory-locator'} = $slot->{label};
 		foreach my $k (keys %{$slot->{dimm}}) {
-			if ($field_map{$k}) {
-				my $remap = $field_map{$k};
-				$conch_dimm->{$remap} = $slot->{dimm}->{$k};
-			} else {
-				$conch_dimm->{$k} = $slot->{dimm}->{$k};
-			}
+			my $remap = $field_map{dimm}{$k} || $k;
+			$conch_dimm->{$remap} = $slot->{dimm}->{$k};
 		}
 
-		# XXX Convert size to GB
+		my $manuf = $conch_dimm->{'memory-manufacturer'};
+		if ($vendors{ $manuf }) {
+			$conch_dimm->{'memory-manufacturer'} = $vendors{ $manuf };
+		}
+
+		# This is not particularly accurate, unfortunately. e.g., a DIMM
+		# that shows 17179869184 bytes we want to represent as "16GB", but...
+		my $b = $conch_dimm->{'memory-size'};
+		$b = $b*1e-9;
+		$b = sprintf("%.0f", $b);
+		$conch_dimm->{'memory-size'} = $b;
+
 		push @conch_dimms, $conch_dimm;
 	}
-
-	p @conch_dimms;
 
 	$device->{conch}{dimms} = \@conch_dimms;
 
