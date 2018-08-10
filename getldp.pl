@@ -81,8 +81,6 @@ use Getopt::Std;
 use Socket;
 use Data::Dumper;
 
-use Data::Printer;
-
 my $ASver = 'v0.1.7';                   # script version
 my $scriptName = basename($0);
 my $kernel = '';

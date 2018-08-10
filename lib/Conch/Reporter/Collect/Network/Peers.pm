@@ -3,6 +3,10 @@ package Conch::Reporter::Collect::Network::Peers;
 use strict;
 use warnings;
 
+use Net::MAC::Vendor;
+
+use Data::Printer;
+
 sub collect {
 	my ($device) = @_;
 
@@ -11,31 +15,77 @@ sub collect {
 	return $device;
 }
 
+sub _snoop_lldp {
+	my ($iface) = @_;
+
+	# device-id: f4:8e:38:46:23:22
+	# platform: 
+	# capabilities: 
+	# port-id: TenGigabitEthernet 1/1
+	# portDesc: 
+	# sysName: va1-3-d05-2
+	# mgmt-address: 
+
+	my $lldp = {};
+
+	my $cmd = `./getldp.pl -x -s -i $iface -l -t 60 2>> /tmp/getldp.out`;
+
+	foreach my $line (split/\n/, $cmd) {
+		my ($k, $v) = split(/:/, $line, 2);
+		$k =~ s/^\s+|\s+$//g;
+		$v =~ s/^\s+|\s+$//g if $v;
+
+		$lldp->{$k} = $v || undef;
+	}
+
+	return $lldp;
+}
+
 sub _peers {
 	my ($device) = @_;
 
-	my %vendors = (
-		arista => [ "" ],
-		dell   => [ "" ],
+	my %field_map = (
+		'device-id'    => 'peer_mac',
+		'port-id'      => 'peer_port',
+		'portDesc'     => 'peer_port_descr',
+		'sysName'      => 'peer_switch',
+		'mgmt-address' => 'peer_mgmt_ip',
+		'platform'     => 'peer_descr',
+		'capabilities' => 'peer_capabilities',
 	);
 
-	my $cmd;
-	if ( -f "/var/tmp/lldp.out" ) {
-		$cmd = `cat /var/tmp/lldp.out`;
+	if (-f "./oui.cache") {
+		print "Using OUI cache\n";
+		my $cache_load =
+			Net::MAC::Vendor::load_cache("./oui.cache", "/var/tmp/oui.out");
 	} else {
-		# This can take up to 60s to run. It doesn't give us some useful
-		# information like peer_descr or peer_text, but neither does
-		# lldpneighbors.
-		$cmd = `/var/tmp/dc-standup/get_link_lldp.sh`;
+		print "OUI cache not found, fetching from IEEE\n";
+		my $cache_load =
+			Net::MAC::Vendor::load_cache(undef, "/var/tmp/oui.out");
 	}
 
-	# 8TYJRD2,ixgbe0,a0:36:9f:c0:fb:b8,TenGigabitEthernet 1/1,va1-3-d05-2
+	foreach my $iface (keys %{$device->{interfaces}}) {
+		next unless $device->{interfaces}{$iface}{state};
+		next unless $device->{interfaces}{$iface}{class};
+		next unless $device->{interfaces}{$iface}{state} eq "up";
+		next unless $device->{interfaces}{$iface}{class} eq "phys";
 
-	foreach my $line (split/\n/, $cmd) {
-		my ($serial, $iface, $mac, $port, $switch) = split/,/, $line;
-		$device->{interfaces}{$iface}{peer_port}   = $port;
-		$device->{interfaces}{$iface}{peer_switch} = $switch;
-		$device->{interfaces}{$iface}{peer_mac}    = $mac;
+		my $lldp = _snoop_lldp($iface);
+		foreach my $k (keys %{$lldp}) {
+			if ($field_map{$k}) {
+				my $remap = $field_map{$k};
+				$device->{interfaces}{$iface}{$remap} = $lldp->{$k};
+			} else {
+				$device->{interfaces}{$iface}{$k} = $lldp->{$k};
+			}
+		}
+
+		if ($device->{interfaces}{$iface}{peer_mac}) {
+			my $peer_mac = $device->{interfaces}{$iface}{peer_mac};
+			my $lookup = Net::MAC::Vendor::fetch_oui_from_cache($peer_mac);
+			my $vendor = $lookup->[0] || undef;
+			$device->{interfaces}{$iface}{peer_vendor} = $vendor;
+		}
 	}
 
 	return $device;
