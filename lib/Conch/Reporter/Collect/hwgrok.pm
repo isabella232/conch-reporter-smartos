@@ -13,7 +13,7 @@ use Time::HiRes qw(usleep ualarm gettimeofday tv_interval);
 
 # hwgrok uses libtopo, taking a snapshot every time it's run. This is an
 # expensive process, so we should not run it very often. The majority of the
-# data we need from top is cacheable; only disk temps and PSU voltages are
+# data we need from topo is cacheable; only disk temps and PSU voltages are
 # nominally live. If neccessary, we have other ways of getting at those
 # metrics.
 
