@@ -1,0 +1,9 @@
+   device-id:             hwaddr:  28:99:3a:1f:11:55
+    platform:                val:  Arista Networks EOS version 4.20.7M running
+on an Arista Networks DCS-7160-48YC6
+capabilities:                val:  L2(bridge)   L3R(router)     
+     port-id:             ifName:  Ethernet43
+    portDesc:                val:  svr19:::Triton_Admin:::v101
+     sysName:                val:  ams302-tor01-0113
+mgmt-address:               IPv4:  10.75.254.23
+     orgSpec:        native-vlan:  101

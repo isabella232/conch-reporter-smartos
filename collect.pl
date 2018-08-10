@@ -7,13 +7,31 @@ use strict;
 use warnings;
 
 use JSON;
+use Path::Tiny;
+use Time::HiRes qw(usleep ualarm gettimeofday tv_interval);
+
 use Data::Printer;
 
 use Conch::Reporter::Collect;
-use Conch::Reporter::Collect::Network::Interfaces;
+use Conch::Reporter::Collect::hwgrok;
+use Conch::Reporter::Collect::Network;
 
 my $device = {};
 
-$device = Conch::Reporter::Collect::Network::Interfaces::collect;
+print "Starting run\n";
 
-p $device;
+my $t0 = [gettimeofday];
+
+print "Collector: hwgrok\n";
+$device = Conch::Reporter::Collect::hwgrok::collect($device);
+
+print "Collector: network\n";
+$device = Conch::Reporter::Collect::Network::collect($device);
+
+my $json = encode_json $device;
+my $file = "/tmp/conch-report.json";
+my $fp = path($file);
+$fp->spew_utf8($json);
+
+my $elapsed = tv_interval ($t0);
+printf "Run complete: %.2fs\n", $elapsed;

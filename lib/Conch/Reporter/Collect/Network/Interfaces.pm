@@ -3,6 +3,8 @@ package Conch::Reporter::Collect::Network::Interfaces;
 use strict;
 use warnings;
 
+use Conch::Reporter::Collect::OUI;
+
 sub collect {
 	my ( $device) = @_;
 
@@ -28,7 +30,7 @@ sub _ip {
 		next if $iface =~ /lo0/;
 		$iface =~ s/\/.*$//g;
 
-		$device->{interfaces}{$iface}{ipaddr} = $ipaddr;
+		$device->{conch}{interfaces}{$iface}{ipaddr} = $ipaddr;
 	}
 	return $device;
 }
@@ -43,12 +45,14 @@ sub _macs {
 	foreach my $line (split/\n/, $cmd) {
 		chomp $line;
 
-		# bdha is bad at regexp.
-		$line =~ s/\\:/-/g;
-		my ($iface, $mac) = split/:/, $line;
-		$mac =~ s/-/:/g;
+		my ($iface, $mac) = split(/:/, $line,2);
+		$mac =~ s/\\//g;
 
 		$device->{interfaces}{$iface}{mac} = $mac;
+
+		my $lookup = Conch::Reporter::Collect::OUI::lookup($mac);
+		my $vendor = $lookup->[0] || undef;
+		$device->{conch}{interfaces}{$iface}{vendor} = $vendor;
 	}
 
 	return $device;
@@ -59,27 +63,41 @@ sub _links {
 
 	my $cmd = `dladm show-phys -p -o link,state,speed,duplex`;
 	# igb0:down:0:half
-	# igb1:down:0:half
 	# ixgbe0:up:10000:full
-	# ixgbe2:up:10000:full
-	# ixgbe1:up:10000:full
-	# ixgbe3:up:10000:full
+	foreach my $line (split/\n/, $cmd) {
+		chomp $line;
 
-	# $device->{interfaces}{$iface}{state}  = $state;
+		my ($iface,$state,$speed,$duplex) = split/:/, $line;
+
+		$device->{conch}{interfaces}{$iface}{state}  = $state;
+		$device->{conch}{interfaces}{$iface}{duplex} = $duplex;
+		$device->{conch}{interfaces}{$iface}{speed}  = $speed;
+	}
 
 	return $device;
 }
 
 sub _mtu {
 	my ( $device ) = @_;
-	# dladm show-link -p -o link,class,mtu,state | grep phys
-	# igb0:phys:1500:down
-	# igb1:phys:1500:down
-	# ixgbe0:phys:1500:up
-	# ixgbe2:phys:1500:up
-	# ixgbe1:phys:1500:up # ixgbe3:phys:1500:up
 
-#	$device->{interfaces}{$iface}{mtu}    = $mtu;
+	my $cmd = `dladm show-link -p -o link,class,mtu,state`;
+	# igb0:phys:1500:down
+	# ixgbe0:phys:1500:up
+	# external0:vnic:1500:up
+	# net0:vnic:1500:?
+	# net1:vnic:1500:?
+	foreach my $line (split/\n/,$cmd) {
+		next if $line=~ /^net.:/; # These are guest VNICs. Ignore them.
+		chomp $line;
+
+		my ($iface,$class,$mtu,$state) = split/:/, $line;
+
+		$device->{conch}{interfaces}{$iface}{mtu}    = $mtu;
+		$device->{conch}{interfaces}{$iface}{class}  = $class;
+		$device->{conch}{interfaces}{$iface}{state}  = $state;
+	}
+
+	return $device;
 }
 
 1;

@@ -1,0 +1,7 @@
+device-id: f4:8e:38:46:23:22
+platform: 
+capabilities: 
+port-id: TenGigabitEthernet 1/1
+portDesc: 
+sysName: va1-3-d05-2
+mgmt-address: 
