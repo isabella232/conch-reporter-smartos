@@ -3,6 +3,8 @@ package Conch::Reporter::Collect::Network::Peers;
 use strict;
 use warnings;
 
+use JSON;
+use Path::Tiny;
 use Time::HiRes qw(usleep ualarm gettimeofday tv_interval);
 use IPC::Run3;
 
@@ -19,7 +21,7 @@ sub collect {
 sub _snoop_lldp {
 	my ($iface) = @_;
 
-	print "=> Snooping LLDP on $iface: ";
+	print "==> Snooping LLDP on $iface: ";
 
 	# device-id: f4:8e:38:46:23:22
 	# platform: 
@@ -39,7 +41,7 @@ sub _snoop_lldp {
 	my $t0 = [gettimeofday];
 	run3 $cmd, \undef, \$stdout, \$stderr;
 	my $elapsed = tv_interval ($t0);
-	print $elapsed . "s\n";
+	printf "%.2fs\n", $elapsed;
 
 	foreach my $line (split/\n/, $stdout) {
 		my ($k, $v) = split(/:/, $line, 2);

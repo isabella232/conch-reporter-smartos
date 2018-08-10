@@ -6,7 +6,7 @@ use warnings;
 use Path::Tiny;
 use IPC::Run3;
 use JSON;
-
+use Time::HiRes qw(usleep ualarm gettimeofday tv_interval);
 
 # hwgrok is: https://github.com/joyent/hwgrok
 # We bundle our own copy in ./bin/hwgrok.
@@ -35,17 +35,23 @@ sub _load_hwgrok_cache {
 	my $hwgrok;
 
 	if ( -f $file ) {
-		print "=> Using existing hwgrok cache\n";
+		print "=> Using existing hwgrok cache: ";
+		my $t0 = [gettimeofday];
 		my $json = $fp->slurp_utf8;
 		$hwgrok = decode_json $json;
+		my $elapsed = tv_interval ($t0);
+		printf "%.2fs\n", $elapsed;
 	} else {
-		print "=> hwgrok cache not found, creating\n";
+		print "=> hwgrok cache not found, creating: ";
+		my $t0 = [gettimeofday];
 		my $cmd = './bin/hwgrok';
 		my $stderr;
 		my $json;
 		run3 $cmd, \undef, \$json, \$stderr;
 		$fp->spew_utf8($json);
 		$hwgrok = decode_json $json;
+		my $elapsed = tv_interval ($t0);
+		printf "%.2fs\n", $elapsed;
 	}
 
 	return $hwgrok;

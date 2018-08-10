@@ -18,14 +18,14 @@ sub _load_oui_cache {
 		my $cache_load =
 			Net::MAC::Vendor::load_cache("./oui.cache", "/var/tmp/oui.out");
 		my $elapsed = tv_interval ($t0);
-		print $elapsed . "s\n";
+		printf "%.2fs\n", $elapsed;
 	} else {
 		print "=> OUI cache not found, fetching from IEEE: ";
 		my $t0 = [gettimeofday];
 		my $cache_load =
 			Net::MAC::Vendor::load_cache(undef, "/var/tmp/oui.out");
 		my $elapsed = tv_interval ($t0);
-		print $elapsed . "s\n";
+		printf "%.2fs\n", $elapsed;
 	}
 }
 
