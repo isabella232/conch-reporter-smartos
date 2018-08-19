@@ -5,6 +5,7 @@ use warnings;
 
 use JSON;
 use Path::Tiny;
+use File::stat;
 use Time::HiRes qw(usleep ualarm gettimeofday tv_interval);
 use IPC::Run3;
 
@@ -13,9 +14,50 @@ use Conch::Reporter::Collect::OUI;
 sub collect {
 	my ($device) = @_;
 
-	$device = _peers($device);
+	$device = _load_lldp_cache($device);
 
 	return $device;
+}
+
+sub _load_lldp_cache {
+	my ($device) = @_;
+
+	my $file = "/tmp/lldp.json";
+	my $update_interval = 60 * 60; # Every hour
+	my $fp = path($file);
+	my $lldp;
+
+	if ( -f $file ) {
+		my $t0 = [gettimeofday];
+
+		my $json = $fp->slurp_utf8;
+		$lldp = decode_json $json;
+
+		my $sb = stat($file);
+
+		if ( (time() - $sb->mtime) > $update_interval) {
+			print "=> Updating existing lldp cache:\n";
+			$device = _peers($device);
+			$fp->spew_utf8(encode_json $device->{conch}->{interfaces});
+		} else {
+			print "=> Using existing lldp cache: ";
+			$device->{conch}->{interfaces} = $lldp;
+		}
+
+		my $elapsed = tv_interval ($t0);
+
+		printf "=> %.2fs\n", $elapsed;
+	} else {
+		print "=> lldp cache not found, creating:\n";
+		my $t0 = [gettimeofday];
+		$device = _peers($device);
+		$fp->spew_utf8(encode_json $device->{conch}->{interfaces});
+		my $elapsed = tv_interval ($t0);
+		printf "=> %.2fs\n", $elapsed;
+	}
+
+	return $device;
+
 }
 
 sub _snoop_lldp {
