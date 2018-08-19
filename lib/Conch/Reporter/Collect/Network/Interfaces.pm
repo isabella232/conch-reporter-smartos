@@ -48,7 +48,7 @@ sub _macs {
 		my ($iface, $mac) = split(/:/, $line,2);
 		$mac =~ s/\\//g;
 
-		$device->{interfaces}{$iface}{mac} = $mac;
+		$device->{conch}{interfaces}{$iface}{mac} = $mac;
 
 		my $lookup = Conch::Reporter::Collect::OUI::lookup($mac);
 		my $vendor = $lookup->[0] || undef;
