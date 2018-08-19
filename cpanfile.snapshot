@@ -156,6 +156,12 @@ DISTRIBUTIONS
       ExtUtils::MakeMaker 0
       HTTP::Date 6
       perl 5.006002
+  File-Stat-0.01
+    pathname: M/MA/MAKOTO/File-Stat-0.01.tar.gz
+    provides:
+      File::Stat 0.01
+    requirements:
+      ExtUtils::MakeMaker 0
   File-Which-1.22
     pathname: P/PL/PLICEASE/File-Which-1.22.tar.gz
     provides:
