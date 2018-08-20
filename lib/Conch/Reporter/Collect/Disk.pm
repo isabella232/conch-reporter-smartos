@@ -10,6 +10,7 @@ sub collect {
 	my ($device) = @_;
 
 	$device = Conch::Reporter::Collect::Disk::Diskinfo::collect($device);
+	$device = Conch::Reporter::Collect::Disk::Smartctl::collect($device);
 	$device = Conch::Reporter::Collect::Disk::Inventory::collect($device);
 
 	return $device;

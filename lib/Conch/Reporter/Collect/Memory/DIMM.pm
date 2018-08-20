@@ -3,9 +3,6 @@ package Conch::Reporter::Collect::Memory::DIMM;
 use strict;
 use warnings;
 
-use Data::Printer;
-use JSON;
-
 sub collect {
 	my ($device) = @_;
 

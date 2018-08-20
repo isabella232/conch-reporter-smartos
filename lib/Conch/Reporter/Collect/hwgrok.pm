@@ -18,8 +18,6 @@ use Time::HiRes qw(usleep ualarm gettimeofday tv_interval);
 # nominally live. If neccessary, we have other ways of getting at those
 # metrics.
 
-# TODO Refresh cache when 1hr old.
-
 sub collect {
 	my ($device) = @_;
 
@@ -35,6 +33,7 @@ sub _load_hwgrok_cache {
 
 	my $hwgrok;
 
+	# XXX Add regen interval per the cache-aware disk collectors.
 	if ( -f $file ) {
 		print "=> Using existing hwgrok cache: ";
 		my $t0 = [gettimeofday];

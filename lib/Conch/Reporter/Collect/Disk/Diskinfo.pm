@@ -10,8 +10,6 @@ use JSON;
 use Time::HiRes qw(usleep ualarm gettimeofday tv_interval);
 use File::stat;
 
-use Data::Printer;
-
 sub collect {
 	my ($device) = @_;
 
