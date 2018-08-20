@@ -9,6 +9,7 @@ use warnings;
 use JSON;
 use Path::Tiny;
 use Time::HiRes qw(usleep ualarm gettimeofday tv_interval);
+use UUID::Tiny ':std';
 
 use Data::Printer;
 
@@ -35,6 +36,8 @@ $device = Conch::Reporter::Collect::Memory::collect($device);
 
 print "Collector: disk\n";
 $device = Conch::Reporter::Collect::Disk::collect($device);
+
+$device->{conch}->{report_id} = create_uuid_as_string();
 
 my $json = encode_json $device;
 my $file = "/tmp/conch-report.json";
