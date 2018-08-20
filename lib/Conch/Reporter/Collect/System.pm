@@ -3,9 +3,10 @@ package Conch::Reporter::Collect::System;
 use strict;
 use warnings;
 
-use Conch::Reporter::Collect::System::Uptime;
 use Conch::Reporter::Collect::System::SMBIOS;
 use Conch::Reporter::Collect::System::Sysinfo;
+use Conch::Reporter::Collect::System::Power;
+use Conch::Reporter::Collect::System::Sensors;
 
 sub collect {
 	my ($device) = @_;
@@ -15,6 +16,12 @@ sub collect {
 
 	print "=> SMBIOS\n";
 	$device = Conch::Reporter::Collect::System::SMBIOS::collect($device);
+
+	print "=> Power\n";
+	$device = Conch::Reporter::Collect::System::Power::collect($device);
+
+	print "=> Sensors\n";
+	$device = Conch::Reporter::Collect::System::Sensors::collect($device);
 
 	return $device;
 }
