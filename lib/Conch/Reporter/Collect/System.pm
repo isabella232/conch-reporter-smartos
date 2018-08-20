@@ -7,6 +7,7 @@ use Conch::Reporter::Collect::System::SMBIOS;
 use Conch::Reporter::Collect::System::Sysinfo;
 use Conch::Reporter::Collect::System::Power;
 use Conch::Reporter::Collect::System::Sensors;
+use Conch::Reporter::Collect::System::Fans;
 
 sub collect {
 	my ($device) = @_;
@@ -22,6 +23,9 @@ sub collect {
 
 	print "=> Sensors\n";
 	$device = Conch::Reporter::Collect::System::Sensors::collect($device);
+
+	print "=> Fans\n";
+	$device = Conch::Reporter::Collect::System::Fans::collect($device);
 
 	return $device;
 }
