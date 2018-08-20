@@ -3,8 +3,6 @@ package Conch::Reporter::Collect::System::Power;
 use strict;
 use warnings;
 
-use Data::Printer;
-
 sub collect {
 	my ($device) = @_;
 
