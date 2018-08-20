@@ -13,25 +13,36 @@ sub collect {
 
 	my $disks = $device->{hwgrok}->{"drive-bays"};
 
-	my %conch_disks = map {
-		my $serial = $_->{disk}->{'serial-number'};
-		# XXX type should be: SAS_HDD, SAS_SSD, SATA_HDD
-		# XXX If diskinfo is empty, call Disk::Diskinfo::collect directly.
-		my $type = $device->{diskinfo}->{$serial}[6] =~ /S/ ? "SSD" : "SCSI";
-		$serial=> {
-			device     => $_->{disk}->{model},
-			temp       => $_->{disk}->{sensors}[0]->{reading},
-			slot       => $_->{label} =~ s/Drive Slot\s+(:?0+(?=.))*//r,
-			vendor     => $_->{disk}->{manufacturer},
-			size       => $_->{disk}->{'size-in-bytes'},
-			model      => $_->{disk}->{model},
-			device     => $device->{diskinfo}->{$serial}[1],
-			drive_type => $type,
-			enclosure  => undef,
-			health     => undef,
-			guid       => undef
-		}
-	} @{$disks};
+	my $drive_type = "SAS_HDD";
+
+	if ($device->{diskinfo}->{removable}) {
+		$drive_type = "USB_HDD";
+	}
+
+	if ($device->{diskinfo}->{ssd}) {
+		$drive_type = "SAS_SSD";
+	}
+
+	p $device;
+
+	my %conch_disks;
+
+	foreach my $disk (@{$disks}) {
+		my $serial = $disk->{disk}->{'serial-number'};
+		$conch_disks{$serial} = {
+			device     => $disk->{disk}->{model} || undef,
+			temp       => $disk->{disk}->{sensors}[0]->{reading} || undef,
+			vendor     => $disk->{disk}->{manufacturer} || undef,
+			size       => $disk->{disk}->{'size-in-bytes'} || undef,
+			model      => $disk->{disk}->{model} || undef,
+			device     => $device->{diskinfo}{device} || undef,
+			drive_type => $drive_type || undef,
+			enclosure  => $device->{diskinfo}->{enclosure},
+			slot       => $device->{diskinfo}->{slot},
+			health     => $device->{diskinfo}->{fault} || undef,
+			guid       => undef,
+		};
+	}
 
 	$device->{conch}->{disk} = \%conch_disks;
 
