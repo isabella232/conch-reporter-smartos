@@ -24,6 +24,7 @@ sub collect {
 	$device = _hardware_version($device);
 	$device = _operating_system($device);
 	$device = _manufacturer($device);
+	$device = _triton($device);
 
 	return $device;
 }
@@ -127,8 +128,9 @@ sub _operating_system {
 	my ($device) = @_;
 
 	# SunOS, Linux
-	$device->{conch}->{os}->{type} = $device->{sysinfo}->{'System Type'};
-	$device->{conch}->{os}->{version} = $device->{sysinfo}->{'Live Image'};
+	$device->{conch}->{os}->{type}     = $device->{sysinfo}->{'System Type'};
+	$device->{conch}->{os}->{version}  = $device->{sysinfo}->{'Live Image'};
+	$device->{conch}->{os}->{hostname} = $device->{sysinfo}->{'Hostname'};
 
 	return $device;
 }
@@ -138,6 +140,42 @@ sub _manufacturer {
 
 	# "Manufacturer": "Joyent"
 	$device->{conch}->{manufacturer} = $device->{sysinfo}->{Manufacturer};
+
+	return $device;
+}
+
+sub _triton {
+	my ($device) = @_;
+
+	$device->{conch}->{triton}->{datacenter} =
+		$device->{sysinfo}->{'Datacenter Name'} || undef;
+
+	$device->{conch}->{triton}->{version} =
+		$device->{sysinfo}->{'SDC Version'} || undef;
+
+	$device->{conch}->{triton}->{admin_nic_tag} =
+		$device->{sysinfo}->{'Admin NIC Tag'} || undef;
+
+	$device->{conch}->{triton}->{setup} =
+		$device->{sysinfo}->{'Setup'} || undef;
+
+	$device->{conch}->{triton}->{zpool} =
+		$device->{sysinfo}->{'Zpool'} || undef;
+
+	$device->{conch}->{triton}->{agents} =
+		$device->{sysinfo}->{'SDC Agents'} || undef;
+
+	$device->{conch}->{triton}->{boot_parameters} =
+		$device->{sysinfo}->{'Boot Parameters'} || undef;
+
+	$device->{conch}->{triton}->{vm_capable} =
+		$device->{sysinfo}->{'VM Capable'} || undef;
+
+	$device->{conch}->{triton}->{bhyve_capable} =
+		$device->{sysinfo}->{'Bhyve Capable'} || undef;
+
+	$device->{conch}->{triton}->{bhyve_max_vcpus} =
+		$device->{sysinfo}->{'Bhyve Max Vcpus'} || undef;
 
 	return $device;
 }
