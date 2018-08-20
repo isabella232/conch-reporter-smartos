@@ -15,6 +15,7 @@ use Data::Printer;
 
 use Conch::Reporter::Collect;
 use Conch::Reporter::Collect::hwgrok;
+use Conch::Reporter::Collect::System;
 use Conch::Reporter::Collect::Network;
 use Conch::Reporter::Collect::Memory;
 use Conch::Reporter::Collect::Disk;
@@ -27,6 +28,9 @@ my $t0 = [gettimeofday];
 
 print "Collector: hwgrok\n";
 $device = Conch::Reporter::Collect::hwgrok::collect($device);
+
+print "Collector: system\n";
+$device = Conch::Reporter::Collect::System::collect($device);
 
 print "Collector: network\n";
 $device = Conch::Reporter::Collect::Network::collect($device);
