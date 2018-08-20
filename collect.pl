@@ -26,6 +26,9 @@ print "Starting run\n";
 
 my $t0 = [gettimeofday];
 
+$device->{conch}->{report_id} = create_uuid_as_string();
+$device->{conch}->{version}   = "1";
+
 print "Collector: hwgrok\n";
 $device = Conch::Reporter::Collect::hwgrok::collect($device);
 
@@ -40,8 +43,6 @@ $device = Conch::Reporter::Collect::Memory::collect($device);
 
 print "Collector: disk\n";
 $device = Conch::Reporter::Collect::Disk::collect($device);
-
-$device->{conch}->{report_id} = create_uuid_as_string();
 
 my $json = encode_json $device;
 my $file = "/tmp/conch-report.json";
