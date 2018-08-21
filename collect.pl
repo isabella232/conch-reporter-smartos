@@ -43,6 +43,17 @@ $device = Conch::Reporter::Collect::Memory::collect($device);
 print "Collector: disk\n";
 $device = Conch::Reporter::Collect::Disk::collect($device);
 
+print "Cleanup:\n";
+
+# XXX Supporting anything other than phys will require changes to the
+# DeviceReport ingestion and validation code.
+foreach my $iface (keys %{$device->{conch}->{interfaces}}) {
+	if ($device->{conch}->{interfaces}->{$iface}->{class} ne "phys") {
+		print "=> Currently only support phys interfaces. Removing $iface from report.\n";
+		delete $device->{conch}->{interfaces}->{$iface};
+	}
+}
+
 my $json = encode_json $device;
 my $file = "/tmp/conch-report.json";
 my $fp = path($file);
