@@ -3,10 +3,13 @@ package Conch::Reporter::Collect::System::Sensors;
 use strict;
 use warnings;
 
+use Data::Printer;
+
 sub collect {
 	my ($device) = @_;
 
 	$device = _chassis_sensors($device);
+	$device = _ipmi_sensors($device);
 
 	return $device;
 }
@@ -39,6 +42,26 @@ sub _chassis_sensors {
 			$device->{conch}->{power}->{usage}->{current}  = $sensor->{reading};
 			$device->{conch}->{power}->{usage}->{units}    = $sensor->{units};
 		}
+	}
+
+	return $device;
+}
+
+sub _ipmi_sensors {
+	my ($device) = @_;
+
+	# Temp             | 38.000     | degrees C  | ok    | na        | 3.000 | 8.000     | 98.000    | 103.000   | na
+	my @cpu_temp = `/usr/sbin/ipmitool sensor list | grep ^Temp`;
+
+	my $count = 0;
+	foreach my $ln (@cpu_temp) {
+		chomp $ln;
+		my @line = split(/\|/, $ln);
+		my $cpu = "cpu$count";
+		my $temp = $line[1];
+		$temp =~ s/^\s+|\s+$//g;
+		$device->{conch}->{temp}->{$cpu} = $temp;
+		$count++;
 	}
 
 	return $device;
