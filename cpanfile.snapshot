@@ -23,6 +23,14 @@ DISTRIBUTIONS
       Time::HiRes 0
       XSLoader 0
       perl 5.008
+  Clone-Choose-0.010
+    pathname: H/HE/HERMES/Clone-Choose-0.010.tar.gz
+    provides:
+      Clone::Choose 0.010
+    requirements:
+      ExtUtils::MakeMaker 0
+      Storable 0
+      perl 5.008001
   Clone-PP-1.07
     pathname: N/NE/NEILB/Clone-PP-1.07.tar.gz
     provides:
@@ -275,6 +283,15 @@ DISTRIBUTIONS
     requirements:
       ExtUtils::MakeMaker 0
       HTTP::Headers 6
+      perl 5.008001
+  Hash-Merge-0.300
+    pathname: R/RE/REHSACK/Hash-Merge-0.300.tar.gz
+    provides:
+      Hash::Merge 0.300
+    requirements:
+      Clone::Choose 0.008
+      ExtUtils::MakeMaker 6.64
+      Scalar::Util 0
       perl 5.008001
   IO-HTML-1.001
     pathname: C/CJ/CJM/IO-HTML-1.001.tar.gz

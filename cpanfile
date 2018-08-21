@@ -6,3 +6,4 @@ requires 'Path::Tiny';
 requires 'IPC::Run3';
 requires 'Time::HiRes';
 requires 'UUID::Tiny';
+requires 'Hash::Merge';

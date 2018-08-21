@@ -8,6 +8,7 @@ use Path::Tiny;
 use File::stat;
 use Time::HiRes qw(usleep ualarm gettimeofday tv_interval);
 use IPC::Run3;
+use Hash::Merge;
 
 use Conch::Reporter::Collect::OUI;
 
@@ -40,8 +41,14 @@ sub _load_lldp_cache {
 			$device = _peers($device);
 			$fp->spew_utf8(encode_json $device->{conch}->{interfaces});
 		} else {
+			# Caches are great, but let's not blow away any local changes we
+			# have not involving LLDP from the cache.
 			print "=> Using existing lldp cache: ";
-			$device->{conch}->{interfaces} = $lldp;
+			my $merge = Hash::Merge->new('LEFT_PRECEDENT');
+			my %merged_iface =
+				%{ $merge->merge( $device->{conch}->{interfaces}, $lldp ) };
+
+			$device->{conch}->{interfaces} = \%merged_iface;
 		}
 
 		my $elapsed = tv_interval ($t0);

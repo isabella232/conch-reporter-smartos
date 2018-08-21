@@ -12,6 +12,27 @@ sub collect {
 	$device = _ip($device);
 	$device = _links($device);
 	$device = _mtu($device);
+	$device = _product($device);
+
+	return $device;
+}
+
+sub _product {
+	my ( $device ) = @_;
+
+	my $hw_pci = $device->{hwgrok}->{'pci-devices'};
+
+	foreach my $iface (keys %{$device->{conch}->{interfaces}}) {
+		my $driver = $iface;
+		$driver =~ s/\d//g;
+		foreach my $pci (@{$hw_pci}) {
+			if ($pci->{'device-driver-name'} eq $driver) {
+				print "Attempting assignment: $iface: $driver: $pci->{'pci-device-name'}\n";
+				$device->{conch}->{interfaces}->{$iface}->{product} =
+					$pci->{'pci-device-name'};
+			}
+		}
+	}
 
 	return $device;
 }
