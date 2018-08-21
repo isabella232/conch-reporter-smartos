@@ -55,19 +55,19 @@ sub collect {
 		#$conch_disks{$serial}->{leds} = $disk->{leds};
 	};
 
-	$device->{conch}->{disk} = \%conch_disks;
+	$device->{conch}->{disks} = \%conch_disks;
 
 	# XXX We would prefer to operate on arrayrefs everywhere.
 	# XXX We could also have the API check if the ref we submit until all
 	# XXX reporters are converted to arrayrefs.
 	my @disks;
-	foreach my $serial (keys %{$device->{conch}->{disk}}) {
-		my $disk = $device->{conch}->{disk}->{$serial};
+	foreach my $serial (keys %{$device->{conch}->{disks}}) {
+		my $disk = $device->{conch}->{disks}->{$serial};
 		$disk->{serial} = $serial;
 		push @disks, $disk;
 	}
 
-	$device->{conch}->{disks} = \@disks;
+	$device->{conch}->{disks_arr} = \@disks;
 
 	return $device;
 }
