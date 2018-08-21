@@ -60,6 +60,7 @@ sub _ipmi_sensors {
 		my $cpu = "cpu$count";
 		my $temp = $line[1];
 		$temp =~ s/^\s+|\s+$//g;
+		$temp = sprintf("%.0f", $temp);
 		$device->{conch}->{temp}->{$cpu} = $temp;
 		$count++;
 	}
