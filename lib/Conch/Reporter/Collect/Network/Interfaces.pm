@@ -27,7 +27,6 @@ sub _product {
 		$driver =~ s/\d//g;
 		foreach my $pci (@{$hw_pci}) {
 			if ($pci->{'device-driver-name'} eq $driver) {
-				print "Attempting assignment: $iface: $driver: $pci->{'pci-device-name'}\n";
 				$device->{conch}->{interfaces}->{$iface}->{product} =
 					$pci->{'pci-device-name'};
 			}
