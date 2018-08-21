@@ -56,6 +56,14 @@ sub collect {
 
 	$device->{conch}{dimms} = \@conch_dimms;
 
+	my $ram_total = `/usr/sbin/prtconf -m`;
+	chomp $ram_total;
+	$ram_total = $ram_total / 1024;
+	$ram_total = sprintf("%.0f", $ram_total);
+
+	$device->{conch}->{memory}->{total} = $ram_total;
+	$device->{conch}->{memory}->{count} = scalar @conch_dimms;
+
 	return $device;
 }
 
