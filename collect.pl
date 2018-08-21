@@ -11,8 +11,6 @@ use Path::Tiny;
 use Time::HiRes qw(usleep ualarm gettimeofday tv_interval);
 use UUID::Tiny ':std';
 
-use Data::Printer;
-
 use Conch::Reporter::Collect;
 use Conch::Reporter::Collect::hwgrok;
 use Conch::Reporter::Collect::System;
@@ -28,6 +26,7 @@ my $t0 = [gettimeofday];
 
 $device->{conch}->{report_id} = create_uuid_as_string();
 $device->{conch}->{version}   = "1";
+$device->{conch}->{state}     = "ONLINE";
 
 print "Collector: hwgrok\n";
 $device = Conch::Reporter::Collect::hwgrok::collect($device);
