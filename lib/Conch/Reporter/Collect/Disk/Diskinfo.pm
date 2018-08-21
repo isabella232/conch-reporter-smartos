@@ -78,10 +78,16 @@ sub _run_diskinfo {
 
 		my ($fault,$locate,$removable,$ssd) = split(//,$disk[6]);
 
+		# diskinfo gives us bytes here. We want megabytes, or some semblence of
+		# them.
+		my $size = $disk[5];
+		$size = $size / 1000 / 1000;
+		$size = sprintf("%.0f", $size);
+
 		$diskinfo->{$serial}->{device}    = $disk[1];
 		$diskinfo->{$serial}->{vendor}    = $disk[2];
 		$diskinfo->{$serial}->{model}     = $disk[3];
-		$diskinfo->{$serial}->{size}      = $disk[5];
+		$diskinfo->{$serial}->{size}      = $size;
 		$diskinfo->{$serial}->{enclosure} = $enclosure;
 		$diskinfo->{$serial}->{slot}      = $slot;
 		$diskinfo->{$serial}->{fault}     = $fault      eq "F" ? 1 : 0;
