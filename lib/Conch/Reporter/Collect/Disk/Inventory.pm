@@ -21,9 +21,11 @@ sub collect {
 
 	foreach my $serial (keys %{$diskinfo}) {
 		my $drive_type = "SAS_HDD";
+		my $transport  = "sas";
 
 		if ($diskinfo->{$serial}->{removable}) {
 			$drive_type = "USB_HDD";
+			$transport  = "usb";
 		}
 
 		if ($diskinfo->{$serial}->{ssd}) {
@@ -32,6 +34,7 @@ sub collect {
 
 		$conch_disks{$serial} = $diskinfo->{$serial};
 		$conch_disks{$serial}->{drive_type} = $drive_type;
+		$conch_disks{$serial}->{transport}  = $transport;
 
 		$conch_disks{$serial}->{health} =
 			$device->{smartctl}->{$serial}->{health} || undef;
