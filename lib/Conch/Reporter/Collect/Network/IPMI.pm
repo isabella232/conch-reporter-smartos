@@ -11,34 +11,43 @@ sub collect {
 	return $device;
 }
 
+sub _v4bits{
+  my $bits=0;
+  my @q_arr=split(/\./,$_[0]);
+  for (@q_arr){
+    my $bin=sprintf("%b",$_);
+    $bin=~s/0//g;
+    my $l=split('',$bin);
+    $bits+=$l;
+  }
+  return $bits;
+}
+
 sub _ipmi_lan {
 	my ($device) = @_;
 
 	my $cmd = `/usr/sbin/ipmitool lan print 1`;
 	# See examples/ipmi_lan.txt
-
+	my %ipmi_hash;
 	foreach my $line (split/\n/, $cmd) {
 		chomp $line;
 		my ($k, $v) = split(/ : /, $line);
 		$k =~ s/^\s+|\s+$//g;
 		$v =~ s/^\s+|\s+$//g;
-
-		if ( $k eq "IP Address" ) {
-			$device->{conch}{interfaces}{ipmi1}{ipaddr} = $v;
-		}
-
-		if ( $k eq "MAC Address" ) {
-			$device->{conch}{interfaces}{ipmi1}{mac}    = $v;
-		}
-
-		# XXX Could make this smarter by detecting Dell vs SMCI. Or not.¬
-		# racadm getniccfg can tell you if the DRAC link is up, for instance.¬
-		$device->{conch}{interfaces}{ipmi1}{product} = "OOB";
-		$device->{conch}{interfaces}{ipmi1}{vendor}  = "Intel";
-		$device->{conch}{interfaces}{ipmi1}{class}   = "phys";
+		$ipmi_hash{$k}=$v;
 	}
+	if($ipmi_hash{'IP Address'}){
+		my $bits=_v4bits($ipmi_hash{'Subnet Mask'});
+		$device->{conch}{interfaces}{ipmi1}{ipaddr} = $ipmi_hash{'IP Address'}.'/'.$bits;
+	}
+
+	$device->{conch}{interfaces}{ipmi1}{mac}    = $ipmi_hash{'MAC Address'} if $ipmi_hash{'MAC Address'};
+	# XXX Could make this smarter by detecting Dell vs SMCI. Or not.¬
+	# racadm getniccfg can tell you if the DRAC link is up, for instance.¬
+	$device->{conch}{interfaces}{ipmi1}{product} = "OOB";
+	$device->{conch}{interfaces}{ipmi1}{vendor}  = "Intel";
+	$device->{conch}{interfaces}{ipmi1}{class}   = "phys";
 
 	return $device;
 }
-
 1;
