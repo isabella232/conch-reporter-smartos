@@ -1,4 +1,6 @@
-requires 'JSON';
+requires 'perl', '5.12.3';
+
+requires 'JSON::PP';
 requires 'Data::Printer';
 requires 'Term::ANSIColor';
 requires 'Net::MAC::Vendor';

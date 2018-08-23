@@ -6,7 +6,7 @@ use lib './lib';
 use strict;
 use warnings;
 
-use JSON;
+use JSON::PP;
 use Path::Tiny;
 use Time::HiRes qw(usleep ualarm gettimeofday tv_interval);
 use UUID::Tiny ':std';

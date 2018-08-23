@@ -6,7 +6,7 @@ use warnings;
 use Carp;
 use Path::Tiny;
 use IPC::Run3;
-use JSON;
+use JSON::PP;
 use Time::HiRes qw(usleep ualarm gettimeofday tv_interval);
 
 # hwgrok is: https://github.com/joyent/hwgrok
