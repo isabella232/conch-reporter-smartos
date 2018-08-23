@@ -1,4 +1,4 @@
-requires 'JSON';
+requires 'JSON::PP';
 requires 'Data::Printer';
 requires 'Term::ANSIColor';
 requires 'Net::MAC::Vendor';

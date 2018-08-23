@@ -191,11 +191,11 @@ DISTRIBUTIONS
       File::HomeDir::Windows 1.004
     requirements:
       Carp 0
-      Cwd 3.12
+      Cwd 3
       ExtUtils::MakeMaker 0
       File::Basename 0
       File::Path 2.01
-      File::Spec 3.12
+      File::Spec 3
       File::Temp 0.19
       File::Which 0.05
       POSIX 0
@@ -232,14 +232,6 @@ DISTRIBUTIONS
       ExtUtils::MakeMaker 0
       Test::More 0.31
       Time::HiRes 0
-  JSON-2.97001
-    pathname: I/IS/ISHIGAKI/JSON-2.97001.tar.gz
-    provides:
-      JSON 2.97001
-      JSON::Backend::PP 2.97001
-    requirements:
-      ExtUtils::MakeMaker 0
-      Test::More 0
   JSON-PP-2.97001
     pathname: I/IS/ISHIGAKI/JSON-PP-2.97001.tar.gz
     provides:

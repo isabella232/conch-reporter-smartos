@@ -3,7 +3,7 @@ package Conch::Reporter::Collect::System::Sysinfo;
 use strict;
 use warnings;
 
-use JSON;
+use JSON::PP;
 use POSIX qw(strftime);
 
 # Note: sysinfo is already cache aware, so no need for us to implement one

@@ -3,7 +3,7 @@ package Conch::Reporter::Collect::Network::Peers;
 use strict;
 use warnings;
 
-use JSON;
+use JSON::PP;
 use Path::Tiny;
 use File::stat;
 use Time::HiRes qw(usleep ualarm gettimeofday tv_interval);
