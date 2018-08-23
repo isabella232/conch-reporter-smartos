@@ -1,0 +1,20 @@
+--- local/lib/perl5/Net/MAC/Vendor.pm.dist	2018-08-24 02:34:54.461583904 +1000
++++ local/lib/perl5/Net/MAC/Vendor.pm	2018-08-24 02:35:11.161358081 +1000
+@@ -73,8 +73,6 @@
+ __PACKAGE__->run( @ARGV ) unless caller;
+ 
+ use Carp;
+-use Compress::Bzip2 qw(memBunzip);
+-use Compress::Zlib  qw(memGunzip);
+ use Mojo::URL;
+ use Mojo::UserAgent;
+ 
+@@ -461,6 +459,8 @@
+ 			my $tx = __PACKAGE__->ua->get( $url );
+ 			#say time . " Fetched URL";
+ 			#say "size is " . $tx->res->headers->header( 'content-length' );
++			use Compress::Bzip2 qw(memBunzip);
++			use Compress::Zlib  qw(memGunzip);
+ 			($url =~ /\.bz2/) ? memBunzip($tx->res->body) :
+ 			($url =~ /\.gz/)  ? memGunzip($tx->res->body) :
+ 			                    $tx->res->body;
