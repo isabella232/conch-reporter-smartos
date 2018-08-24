@@ -68,9 +68,9 @@ sub _smartctl_disk {
 	my $cmd = "./bin/smartctl -d scsi -T permissive $smartctl_opts";
 	my $buffer;
 	scalar run(command => $cmd,
-                verbose => 0,
-                buffer  => \$buffer,
-                timeout => 20);
+		verbose => 0,
+		buffer  => \$buffer,
+		timeout => 20);
 
 	my $devstat = {};
 
