@@ -1,0 +1,61 @@
+#!/usr/bin/env perl
+
+# Ensure a command is run only once.
+#
+# Usage `flockit <command>`
+#
+# XXX Add a verbose/debug mode which emits timing info and status info, as well
+#     as the job output. (The timing bits are already there.
+
+use strict;
+use warnings;
+
+use Fcntl qw( :DEFAULT :flock );
+use IPC::Run3 qw(run3);
+use MIME::Base64 qw(encode_base64);
+use Time::HiRes ();
+
+if (!$ARGV[0]) {
+  die "$0 <command> [arg1] [arg2] [...]";
+  exit 1;
+}
+
+my $command = join(" ", @ARGV);
+
+my $command_hash = encode_base64($command);
+chomp $command_hash;
+my $lockfile = "/tmp/flockit.$command_hash";
+
+my $lock_fh;
+sysopen $lock_fh, $lockfile, O_CREAT|O_WRONLY
+  or die "couldn't open lockfile $lockfile: $!";
+
+my $lock_flags = LOCK_EX | LOCK_NB;
+
+unless (flock $lock_fh, $lock_flags) {
+  my $error = $!;
+  my $mtime = (stat $lock_fh)[9];
+  my $stamp = scalar localtime $mtime;
+  die "can't lock; $!; lockfile created $stamp";
+}
+
+printf $lock_fh "pid %s running %s\nstarted at %s\n",
+  $$, $command, scalar localtime $^T;
+
+my $start = Time::HiRes::time;
+my $output;
+
+my $ok = eval {
+  run3($command, \undef, \$output, \$output);
+  1;
+};
+
+unless ($ok) {
+  die "run3 failed to run command: $command";
+}
+
+my $end = Time::HiRes::time;
+
+my $time_taken = sprintf '%0.4f', $end - $start;
+
+print $output;
