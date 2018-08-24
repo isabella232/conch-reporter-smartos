@@ -11,6 +11,8 @@ tags
 .DS_Store
 node_modules
 Conch/ui/dist
+bin/conch
+VERSION.txt
 
 CHANGELOG.md
 
