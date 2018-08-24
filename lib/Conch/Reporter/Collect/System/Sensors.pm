@@ -56,7 +56,8 @@ sub _ipmi_sensors {
 		run( command => $cmd, verbose => 0, timeout => 30 );
 
 	my $count = 0;
-	foreach my $ln (@$stdout_buf) {
+	my @lines = split(/\n/, $stdout_buf->[0]);
+	foreach my $ln (@lines) {
 		chomp $ln;
 		my @line = split(/\|/, $ln);
 		my $cpu = "cpu$count";
