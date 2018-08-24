@@ -1,19 +1,21 @@
-#!/usr/bin/env perl
+#!/usr/perl5/bin/perl
 
 # Ensure a command is run only once.
 #
 # Usage `flockit <command>`
 #
 # XXX Add a verbose/debug mode which emits timing info and status info, as well
-#     as the job output. (The timing bits are already there.
+#     as the job output. (The timing bits are already there.)
 
 use strict;
 use warnings;
 
+use lib '../local/lib/perl5';
+
 use Fcntl qw( :DEFAULT :flock );
-use IPC::Run3 qw(run3);
 use MIME::Base64 qw(encode_base64);
 use Time::HiRes ();
+use IPC::Cmd qw[can_run run run_forked];
 
 if (!$ARGV[0]) {
   die "$0 <command> [arg1] [arg2] [...]";
@@ -45,17 +47,14 @@ printf $lock_fh "pid %s running %s\nstarted at %s\n",
 my $start = Time::HiRes::time;
 my $output;
 
-my $ok = eval {
-  run3($command, \undef, \$output, \$output);
-  1;
-};
-
-unless ($ok) {
-  die "run3 failed to run command: $command";
-}
+my $buffer;
+	scalar run(command => $command,
+	verbose => 0,
+	buffer  => \$buffer,
+	timeout => 360);
 
 my $end = Time::HiRes::time;
 
 my $time_taken = sprintf '%0.4f', $end - $start;
 
-print $output;
+print $buffer;
