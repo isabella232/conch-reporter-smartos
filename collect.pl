@@ -1,7 +1,6 @@
-#!/opt/tools/bin/perl
+#!/usr/perl5/bin/perl
 
-use lib './local/lib/perl5';
-use lib './lib';
+use lib ('./local/lib/perl5', './lib');
 
 use strict;
 use warnings;

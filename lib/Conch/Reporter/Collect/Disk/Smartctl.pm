@@ -5,7 +5,7 @@ use warnings;
 
 use Carp;
 use Path::Tiny;
-use IPC::Run3;
+use IPC::Cmd qw[can_run run run_forked];
 use Time::HiRes qw(usleep ualarm gettimeofday tv_interval);
 
 sub collect {
@@ -65,8 +65,12 @@ sub _smartctl_disk {
 	}
 
 	# XXX Catching errors here would be good.
-	my $smartctl = `./bin/smartctl -d scsi -T permissive $smartctl_opts`;
-	chomp $smartctl;
+	my $cmd = "./bin/smartctl -d scsi -T permissive $smartctl_opts";
+	my $buffer;
+	scalar run(command => $cmd,
+                verbose => 0,
+                buffer  => \$buffer,
+                timeout => 20);
 
 	my $devstat = {};
 
@@ -79,7 +83,7 @@ sub _smartctl_disk {
 
 	# We get temps from hwgrok. Might be interesting to see if they are
 	# different.
-	for ( split /^/, $smartctl ) {
+	for ( split /^/, $buffer ) {
 		# SSDs aren't really supported by smartctl. They spit out a new fun
 		# format:
 		# ID  ATTRIBUTE_NAME       FLAG   VALUE WORST THRESH TYPE     UPDATED WHEN_FAILED RAW_VALUE

@@ -5,10 +5,10 @@ use warnings;
 
 use Carp;
 use Path::Tiny;
-use IPC::Run3;
 use JSON::PP;
 use Time::HiRes qw(usleep ualarm gettimeofday tv_interval);
 use File::stat;
+use IPC::Cmd qw[can_run run run_forked];
 
 sub collect {
 	my ($device) = @_;
@@ -57,7 +57,11 @@ sub _run_diskinfo {
 	my $diskinfo = {};
 
 	# TYPE DISK VID PID SERIAL SIZE FLRS LOCATION
-	my @compact = `/usr/bin/diskinfo -Hcp`;
+
+	my $cmd = 'diskinfo -Hcp';
+	my( $success, $error_message, $full_buf, $stdout_buf, $stderr_buf ) =
+        run( command => $cmd, verbose => 0 );
+	my @compact = split "\n", $stdout_buf->[0];
 	foreach my $line (@compact) {
 		chomp $line;
 		my @disk = split(/\t+/,$line);

@@ -3,6 +3,8 @@ package Conch::Reporter::Collect::Network::IPMI;
 use strict;
 use warnings;
 
+use IPC::Cmd qw[can_run run run_forked];
+
 sub collect {
 	my ($device) = @_;
 
@@ -26,10 +28,16 @@ sub _v4bits{
 sub _ipmi_lan {
 	my ($device) = @_;
 
-	my $cmd = `/usr/sbin/ipmitool lan print 1`;
+	my $cmd = "/usr/sbin/ipmitool lan print 1";
+	my $buffer;
+	scalar run( command => $cmd,
+		verbose => 0,
+		buffer  => \$buffer,
+		timeout => 20 );
+
 	# See examples/ipmi_lan.txt
 	my %ipmi_hash;
-	foreach my $line (split/\n/, $cmd) {
+	foreach my $line (split/\n/, $buffer) {
 		chomp $line;
 		my ($k, $v) = split(/ : /, $line);
 		$k =~ s/^\s+|\s+$//g;

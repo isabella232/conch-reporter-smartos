@@ -1,5 +1,8 @@
 .PHONY:
 
+run: local
+	@bin/flockit ./collect.pl
+
 # this is a little ugly but this pod file will throw an error otherwise
 .PHONY: fatpack
 fatpack:

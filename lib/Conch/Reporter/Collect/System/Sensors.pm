@@ -3,6 +3,8 @@ package Conch::Reporter::Collect::System::Sensors;
 use strict;
 use warnings;
 
+use IPC::Cmd qw[can_run run run_forked];
+
 sub collect {
 	my ($device) = @_;
 
@@ -49,10 +51,12 @@ sub _ipmi_sensors {
 	my ($device) = @_;
 
 	# Temp             | 38.000     | degrees C  | ok    | na        | 3.000 | 8.000     | 98.000    | 103.000   | na
-	my @cpu_temp = `/usr/sbin/ipmitool sensor list | grep ^Temp`;
+	my $cmd = "/usr/sbin/ipmitool sensor list | grep ^Temp";
+	my( $success, $error_message, $full_buf, $stdout_buf, $stderr_buf ) =
+		run( command => $cmd, verbose => 0, timeout => 30 );
 
 	my $count = 0;
-	foreach my $ln (@cpu_temp) {
+	foreach my $ln (@$stdout_buf) {
 		chomp $ln;
 		my @line = split(/\|/, $ln);
 		my $cpu = "cpu$count";

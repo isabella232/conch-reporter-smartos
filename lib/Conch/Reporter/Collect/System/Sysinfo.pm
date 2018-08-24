@@ -3,6 +3,7 @@ package Conch::Reporter::Collect::System::Sysinfo;
 use strict;
 use warnings;
 
+use IPC::Cmd qw[can_run run run_forked];
 use JSON::PP;
 use POSIX qw(strftime);
 
@@ -32,8 +33,13 @@ sub collect {
 sub _load_sysinfo {
 	my ($device) = @_;
 
-	my $sysinfo = `/usr/bin/sysinfo`;
-	$device->{sysinfo} = decode_json $sysinfo;
+	my $cmd = "/usr/bin/sysinfo";
+	my $buffer;
+	scalar run( command => $cmd,
+		verbose => 0,
+		buffer  => \$buffer,
+		timeout => 20 );
+	$device->{sysinfo} = decode_json $buffer;
 
 	return $device;
 }

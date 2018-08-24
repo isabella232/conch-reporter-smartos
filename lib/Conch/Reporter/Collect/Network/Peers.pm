@@ -7,8 +7,8 @@ use JSON::PP;
 use Path::Tiny;
 use File::stat;
 use Time::HiRes qw(usleep ualarm gettimeofday tv_interval);
-use IPC::Run3;
 use Hash::Merge;
+use IPC::Cmd qw[can_run run run_forked];
 
 use Conch::Reporter::Collect::OUI;
 
@@ -82,17 +82,18 @@ sub _snoop_lldp {
 
 	my $lldp = {};
 
-	my $stdin;
-	my $stdout;
-	my $stderr;
 	my $cmd = "./bin/getldp.pl -x -s -i $iface -l -t 60";
 
 	my $t0 = [gettimeofday];
-	run3 $cmd, \undef, \$stdout, \$stderr;
+
+	my( $success, $error_message, $full_buf, $stdout_buf, $stderr_buf ) =
+		run( command => $cmd, verbose => 0, timeout => 45 );
+
 	my $elapsed = tv_interval ($t0);
 	printf "%.2fs\n", $elapsed;
 
-	foreach my $line (split/\n/, $stdout) {
+	foreach my $line (split/\n/, $stdout_buf->[0]) {
+		chomp $line;
 		my ($k, $v) = split(/:/, $line, 2);
 		$k =~ s/^\s+|\s+$//g;
 		$v =~ s/^\s+|\s+$//g if $v;

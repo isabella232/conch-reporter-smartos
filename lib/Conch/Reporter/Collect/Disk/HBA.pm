@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 use Path::Tiny;
+use IPC::Cmd qw[can_run run run_forked];
 
 sub collect {
 	my ($device) = @_;
@@ -34,9 +35,11 @@ sub collect {
 sub _get_prtconf_entry {
 	my ($devpath) = @_;
 
-	my $file = '/var/tmp/conch.hba.prtconf';
-	my $prtconf = `prtconf -v /devices/$devpath > $file`;
-
+	my $file = '/tmp/conch.hba.prtconf';
+	my $cmd = "prtconf -v /devices/$devpath";
+	my( $success, $error_message, $full_buf, $stdout_buf, $stderr_buf ) =
+        run( command => $cmd, verbose => 0, timeout => 30 );
+	my $out = path($file)->spew(@$stdout_buf);
 	my $fh = path($file)->filehandle;
 	my $k = {};
 	my $name;
