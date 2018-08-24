@@ -48,8 +48,13 @@ sub collect {
 	foreach my $disk (@{$hw_disks}) {
 		my $serial = $disk->{disk}->{'serial-number'};
 		$conch_disks{$serial}->{guid}     = undef;
+
+		# If we have a temp from hwgrok, use that. If we are missing it, fall
+		# back to the smartctl data.
 		$conch_disks{$serial}->{temp} = 
-			$disk->{disk}->{sensors}[0]->{reading} || undef,
+			$disk->{disk}->{sensors}[0]->{reading} ||
+			$device->{smartctl}->{$serial}->{temp};
+
 		$conch_disks{$serial}->{firmware} =
 			$disk->{disk}->{'firmware-revision'};
 
