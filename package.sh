@@ -11,4 +11,4 @@ echo "Output: $PWD/$F"
 
 echo
 echo "Make a symlink wherever you're storing this on Manta:"
-echo "mln ~~/public/conch-reporter-smartos-latest.tar.gz ~~/public/$F"
+echo "mln ~~/public/$F ~~/public/conch-reporter-smartos-latest.tar.gz"
