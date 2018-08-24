@@ -9,6 +9,8 @@ use JSON::PP;
 use Path::Tiny;
 use Time::HiRes qw(usleep ualarm gettimeofday tv_interval);
 use UUID::Tiny ':std';
+use MIME::Base64 qw(encode_base64);
+use Fcntl qw( :DEFAULT :flock );
 
 use Conch::Reporter::Collect;
 use Conch::Reporter::Collect::hwgrok;
@@ -18,6 +20,24 @@ use Conch::Reporter::Collect::Memory;
 use Conch::Reporter::Collect::Disk;
 
 my $device = {};
+
+my $lockfile = "/var/tmp/conch-reporter.lock";
+
+my $lock_fh;
+sysopen $lock_fh, $lockfile, O_CREAT|O_WRONLY
+  or die "couldn't open lockfile $lockfile: $!";
+
+my $lock_flags = LOCK_EX | LOCK_NB;
+
+unless (flock $lock_fh, $lock_flags) {
+  my $error = $!;
+  my $mtime = (stat $lock_fh)[9];
+  my $stamp = scalar localtime $mtime;
+  die "can't lock; $!; lockfile created $stamp";
+}
+
+printf $lock_fh "pid %s running %s\nstarted at %s\n",
+  $$, $0, scalar localtime $^T;
 
 print "Starting run\n";
 
