@@ -29,6 +29,9 @@ sub _product {
 			if ($pci->{'device-driver-name'} eq $driver) {
 				$device->{conch}->{interfaces}->{$iface}->{product} =
 					$pci->{'pci-device-name'};
+			} else {
+				$device->{conch}->{interfaces}->{$iface}->{product} =
+					"unknown";
 			}
 		}
 	}

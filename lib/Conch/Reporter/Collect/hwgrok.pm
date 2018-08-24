@@ -28,6 +28,7 @@ sub collect {
 	return $device;
 }
 
+	use Data::Printer;
 sub _load_hwgrok_cache {
 	my $file = "/tmp/hwgrok.json";
 	my $fp   = path($file);
@@ -44,7 +45,7 @@ sub _load_hwgrok_cache {
 			$hwgrok = _run_hwgrok();
 		} else {
 			print "=> Using existing hwgrok cache: ";
-			my $json = $fp->slurp_utf8;
+			$hwgrok = decode_json $fp->slurp_utf8;
 		}
 	} else {
 		print "=> hwgrok cache not found, creating: ";
@@ -53,6 +54,9 @@ sub _load_hwgrok_cache {
 
 	my $elapsed = tv_interval ($t0);
 	printf "%.2fs\n", $elapsed;
+
+	return $hwgrok;
+}
 
 sub _run_hwgrok {
 	my $file = "/tmp/hwgrok.json";
@@ -67,8 +71,6 @@ sub _run_hwgrok {
 		timeout => 30 );
 	my $hwgrok = decode_json $buffer;
 	$fp->spew_utf8($buffer);
-	return $hwgrok;
-}
 
 	return $hwgrok;
 }
