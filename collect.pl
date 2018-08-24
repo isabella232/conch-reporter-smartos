@@ -24,9 +24,10 @@ print "Starting run\n";
 
 my $t0 = [gettimeofday];
 
-$device->{conch}->{report_id} = create_uuid_as_string();
-$device->{conch}->{version}   = "1";
-$device->{conch}->{state}     = "ONLINE";
+$device->{conch}->{report_id}    = create_uuid_as_string();
+$device->{conch}->{version}      = "2";
+$device->{conch}->{state}        = "ONLINE";
+$device->{conch}->{device_type}  = "server";
 
 print "Collector: hwgrok\n";
 $device = Conch::Reporter::Collect::hwgrok::collect($device);
