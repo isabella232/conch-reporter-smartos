@@ -134,8 +134,7 @@ sub _peers {
 
 		if ($device->{conch}{interfaces}{$iface}{peer_mac}) {
 			my $peer_mac = $device->{conch}{interfaces}{$iface}{peer_mac};
-			my $lookup = Conch::Reporter::Collect::OUI::lookup($peer_mac);
-			my $vendor = $lookup->[0] || undef;
+			my $vendor = Conch::Reporter::Collect::OUI::lookup($peer_mac);
 			$device->{conch}{interfaces}{$iface}{peer_vendor} = $vendor;
 		}
 	}

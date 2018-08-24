@@ -70,9 +70,8 @@ sub _macs {
 
 		$device->{conch}{interfaces}{$iface}{mac} = $mac;
 
-		my $lookup = Conch::Reporter::Collect::OUI::lookup($mac);
-		my $vendor = $lookup->[0] || undef;
-		$device->{conch}{interfaces}{$iface}{vendor} = $vendor;
+		my $vendor = Conch::Reporter::Collect::OUI::lookup($mac);
+		$device->{conch}{interfaces}{$iface}{vendor} = $vendor || undef;
 	}
 
 	return $device;

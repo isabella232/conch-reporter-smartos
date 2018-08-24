@@ -12,8 +12,6 @@ use Conch::Reporter::Collect::Network::Peers;
 sub collect {
 	my ($device) = @_;
 
-	my $oui_load = Conch::Reporter::Collect::OUI::_load_oui_cache();
-
 	print "=> Interfaces\n";
 	$device = Conch::Reporter::Collect::Network::Interfaces::collect($device);
 
