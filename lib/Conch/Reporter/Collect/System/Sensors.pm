@@ -75,12 +75,14 @@ sub _ipmi_sensors {
 		$key =~ s/^\s+|\s+$//g;
 		my $value = $line[1];
 		$value =~ s/^\s+|\s+$//g;
+		next unless $value =~ m/\d+/;
 		$value = sprintf("%.0f", $value);
 
 		if ($key =~ m/^System|^Inlet|^Exhaust/) {
 			$key =~ s/ .*$//;
 			if ($key =~ /System/i) {
-				$key = "exhaust";
+				$device->{conch}->{temp}->{inlet}   = $value;
+				$device->{conch}->{temp}->{exhaust} = $value;
 			}
 			$device->{conch}->{temp}->{lc($key)} = $value;
 		}
