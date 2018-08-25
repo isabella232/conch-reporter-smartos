@@ -19,6 +19,9 @@ use Conch::Reporter::Collect::Network;
 use Conch::Reporter::Collect::Memory;
 use Conch::Reporter::Collect::Disk;
 
+use netbox::update;
+use netbox::update::interfaces;
+
 my $device = {};
 
 my $lockfile = "/var/tmp/conch-reporter.lock";
@@ -62,6 +65,9 @@ $device = Conch::Reporter::Collect::Memory::collect($device);
 
 print "Collector: disk\n";
 $device = Conch::Reporter::Collect::Disk::collect($device);
+
+print "Netbox:\n";
+$device = netbox::update::updateNetbox($device);
 
 print "Cleanup:\n";
 
