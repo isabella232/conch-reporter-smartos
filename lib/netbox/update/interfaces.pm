@@ -4,8 +4,7 @@ use strict;
 use warnings;
 
 use Time::HiRes qw(usleep ualarm gettimeofday tv_interval);
-use Data::Dumper;
-use JSON;
+use JSON::PP;
 use Path::Tiny;
 use netbox::update::netbox;
 

@@ -4,11 +4,9 @@ use strict;
 use warnings;
 
 use Time::HiRes qw(usleep ualarm gettimeofday tv_interval);
-use Data::Dumper;
 
-use LWP::UserAgent;
 use IPC::Cmd qw[can_run run run_forked];
-use JSON;
+use JSON::PP;
 
 sub goNetbox{
   my ($creds,$path,$id,$p)=@_;
@@ -32,7 +30,6 @@ sub goNetbox{
   $cmd.=' -H "Content-Type: application/json"';
   $cmd.=' -H "accept: application/json" -H "Authorization: Token '.$creds->{netbox_token}.'"';
   my $buffer;
-  #print "\n\n$cmd\n\n";
   scalar run( command => $cmd,verbose => 0, buffer  => \$buffer, timeout => 20 );
   if($rtype eq 'DELETE' && !$buffer){
     my $json_out->{delete}=$path;

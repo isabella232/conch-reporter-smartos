@@ -2,9 +2,8 @@ package netbox::update;
 
 use strict;
 use warnings;
-use Data::Dumper;
 use Path::Tiny;
-use JSON;
+use JSON::PP;
 
 sub hashFromFile{
   my ($file)=@_;
@@ -19,7 +18,6 @@ sub hashFromFile{
 
 sub updateNetbox{
   my ($device)=@_;
-  #print $device->{interfaces};
   my $nbdets=();
   my $creds=netbox::update::hashFromFile('/opt/custom/etc/opstools_secrets');
   if($creds->{netbox_token}){
