@@ -1,14 +1,26 @@
-#!/bin/bash
+#!/bin/bash -xe
 
-V=$( git show --oneline | head -1 | awk '{print $1}' )
-echo $V > VERSION.txt
+GIT_VERSION=$( git rev-parse --short HEAD )
 
-F="conch-reporter-smartos-$V.tar.gz"
-cd ../
-tar -czf $F conch-reporter-smartos
+#[[ ! -z "$1" ]] && CONCH_SERVER=$1 ||  CONCH_SERVER="conch.joyent.us"
+DIST_NAME="conch-reporter-smartos-${GIT_VERSION}"
+DIST_ARCHIVE="${DIST_NAME}.tar.gz"
+BUILD_BASE="/tmp"
+BUILD_AREA="${BUILD_BASE}/${DIST_NAME}"
 
-echo "Output: $PWD/$F"
+test -d ${BUILD_AREA} && rm -rf ${BUILD_AREA}
+mkdir ${BUILD_AREA}
 
-echo
-echo "Make a symlink wherever you're storing this on Manta:"
-echo "mln ~~/public/$F ~~/public/conch-reporter-smartos-latest.tar.gz"
+echo ${GIT_VERSION} > ${BUILD_AREA}/VERSION.txt
+cp -R * ${BUILD_AREA}/
+
+cd ${BUILD_AREA}
+
+rm -rf ./.git
+rm -rf ./local/cache
+
+carton
+cd /tmp
+
+tar -czf ${DIST_ARCHIVE} ${DIST_NAME}
+echo "${BUILD_BASE}/${DIST_ARCHIVE}"
