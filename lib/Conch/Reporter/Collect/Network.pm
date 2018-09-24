@@ -18,8 +18,8 @@ sub collect {
 	print "=> IPMI\n";
 	$device = Conch::Reporter::Collect::Network::IPMI::collect($device);
 
-	print "=> Network peers\n";
-	$device = Conch::Reporter::Collect::Network::Peers::collect($device);
+##	print "=> Network peers\n";
+##	$device = Conch::Reporter::Collect::Network::Peers::collect($device);
 
 	return $device;
 }
